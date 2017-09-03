@@ -80,6 +80,15 @@ def run_network(data=None, model=None, epochs=20, batch=256):
 
         print "Network's test score [loss, accuracy]: {0}".format(score)
         return model, history.losses
+    
+        # serialize model to JSON
+        model_json = model.to_json()
+        with open("GymMario.json", "w") as json_file:
+        	json_file.write(model_json)
+        # serialize weights to HDF5
+        model.save_weights("GymMario.h5")
+        print("Saved model to disk")
+        
     except KeyboardInterrupt:
         print ' KeyboardInterrupt'
         return model, history.losses
