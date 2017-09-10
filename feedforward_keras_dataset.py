@@ -20,10 +20,21 @@ class LossHistory(cb.Callback):
 
 
 def load_data():
-    print 'Loading data...'
-    mario_level_data = genfromtxt('mario.csv', delimiter=',')
-    data_x = mario_level_data[:,:172031]
+
+
+    print 'Loading data...1'
+    #with open("MDL.csv") as f:
+    #mario_level_data = np.loadtxt('MDL.csv', delimiter=',', dtype=np.float32)
+    #mario_level_data = csv.reader(f,delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+    
+    #mario_level_data = pd.read_csv('MDL.csv', delimiter=',', engine= 'python' )
+    mario_level_data = np.genfromtxt('MDL.csv', delimiter=',',max_rows=400)
+    print 'Loading data...2'
     data_y = mario_level_data[:,[172032,172033,172034,172035,172036,172037]]
+    print 'Loading data...3'
+    data_x = mario_level_data[:,:172031]#344063 colums usecols=[1,3]
+    print 'Loading data...4'
+
     split_number = len(data_x)/2
     (X_train, X_test) = data_x[:split_number,:], data_x[split_number:,:]
     (y_train, y_test) = data_y[:split_number,:], data_y[split_number:,:]
@@ -33,7 +44,7 @@ def load_data():
 
     X_train /= 255
     X_test /= 255
-
+    print(mario_level_data.shape)
     print 'Data loaded.'
     return [X_train, X_test, y_train, y_test]
 
@@ -57,7 +68,7 @@ def init_model():
     return model
 
 
-def run_network(data=None, model=None, epochs=20, batch=256):
+def run_network(data=None, model=None, epochs=500, batch=256):
     try:
         start_time = time.time()
         if data is None:
@@ -79,16 +90,19 @@ def run_network(data=None, model=None, epochs=20, batch=256):
         score = model.evaluate(X_test, y_test, batch_size=16)
 
         print "Network's test score [loss, accuracy]: {0}".format(score)
-        return model, history.losses
-    
-        # serialize model to JSON
+
+# serialize model to JSON
         model_json = model.to_json()
         with open("GymMario.json", "w") as json_file:
         	json_file.write(model_json)
         # serialize weights to HDF5
         model.save_weights("GymMario.h5")
         print("Saved model to disk")
-        
+
+        return model, history.losses
+       
+
+
     except KeyboardInterrupt:
         print ' KeyboardInterrupt'
         return model, history.losses
@@ -100,3 +114,8 @@ def plot_losses(losses):
     ax.plot(losses)
     ax.set_title('Loss per batch')
     fig.show()
+
+
+
+run_network()
+
